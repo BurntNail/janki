@@ -58,7 +58,7 @@ impl Item {
         let mut count = 0;
         for b in &self.history {
             if *b {
-                count += 0;
+                count += 1;
             } else {
                 count = 0;
             }
@@ -68,7 +68,7 @@ impl Item {
     }
 
     #[must_use]
-    pub fn last_tested(&self) -> Option<Duration> {
+    pub fn time_since_last_test(&self) -> Option<Duration> {
         if let Some(st) = self.last_tested {
             if let Ok(d) = st.elapsed() {
                 return Some(d);

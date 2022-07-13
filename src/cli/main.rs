@@ -7,7 +7,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let map = {
         let mut hm = HashMap::new();
         for i in 1..11 {
-            hm.insert(i, Duration::from_secs(i as u64 * 15));
+            hm.insert(i, Duration::from_secs(i as u64 * 30));
         }
         hm
     };
@@ -16,7 +16,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut input = String::new();
     loop {
-        //TODO: add clap options
+        //TODO: this but w/ clap
         input.clear();
         println!("Add, Test or Exit - [atE]: ");
         stdin().read_line(&mut input)?;
@@ -35,7 +35,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             "t" => {
                 let mut item = anki.get_card();
-                println!("i: {item:?}");
                 let mut answer = String::new();
 
                 println!("What is the definition of {}", item.term);
@@ -47,8 +46,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 } else {
                     println!("Wrong - the answer is {}", item.definition);
                     item.was_succesful = Some(false);
-
-                    println!("{:?} != {:?}", answer.trim(), item.definition);
                 }
             }
             _ => break,

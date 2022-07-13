@@ -26,9 +26,7 @@ impl<S: Storage> AnkiGame<S> {
 
     pub fn get_card(&mut self) -> ItemGuard<S> {
         let elgible = get_elgible(&self.v, &self.sat);
-
-        println!("{} : {:?}", self.v.len(), elgible);
-
+        
         let selected = if elgible.is_empty() {
             thread_rng().gen_range(0..self.v.len())
         } else {
@@ -49,7 +47,7 @@ fn get_elgible(items: &[Item], sat: &SeeAgainTimer) -> Vec<usize> {
         .iter()
         .enumerate()
         .filter_map(|(index, item)| {
-            item.last_tested().and_then(|last_seen| {
+            item.time_since_last_test().map_or(Some(index), |last_seen| {
                 sat.get(&item.get_streak()).map_or(Some(index), |distance| {
                     if &last_seen > distance {
                         Some(index)
