@@ -1,5 +1,5 @@
 use crate::{
-    item::{Item, ItemGuard, Fact},
+    item::{Fact, Item, ItemGuard},
     storage::Storage,
 };
 use rand::{thread_rng, Rng};
@@ -26,11 +26,19 @@ impl<S: Storage> AnkiGame<S> {
 
     pub fn get_card(&mut self) -> ItemGuard<S> {
         let elgible = get_elgible(&self.v, &self.sat);
-        let selected = elgible[thread_rng().gen_range(0..elgible.len())];
+
+        println!("{} : {:?}", self.v.len(), elgible);
+
+        let selected = if elgible.is_empty() {
+            thread_rng().gen_range(0..self.v.len())
+        } else {
+            elgible[thread_rng().gen_range(0..elgible.len())]
+        };
+
         ItemGuard::new(&mut self.v, selected, &mut self.storage)
     }
 
-    pub fn add_card (&mut self, f: Fact) {
+    pub fn add_card(&mut self, f: Fact) {
         self.v.push(f.into());
         self.storage.write_db(&self.v).unwrap();
     }

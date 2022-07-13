@@ -4,12 +4,21 @@ use std::{
     time::{Duration, SystemTime},
 };
 
-use crate::{storage::Storage, db::AnkiDB};
+use crate::{db::AnkiDB, storage::Storage};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Fact {
     pub term: String,
     pub definition: String,
+}
+
+impl Fact {
+    pub fn new(term: impl Into<String>, definition: impl Into<String>) -> Self {
+        Self {
+            term: term.into(),
+            definition: definition.into(),
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -70,11 +79,12 @@ impl Item {
     }
 }
 
+#[derive(Debug)]
 pub struct ItemGuard<'a, S: Storage> {
     v: &'a mut AnkiDB,
     index: usize,
-    was_succesful: Option<bool>,
-    s: &'a mut S
+    pub was_succesful: Option<bool>,
+    s: &'a mut S,
 }
 
 impl<'a, S: Storage> Drop for ItemGuard<'a, S> {
@@ -96,5 +106,12 @@ impl<'a, S: Storage> Deref for ItemGuard<'a, S> {
 }
 
 impl<'a, S: Storage> ItemGuard<'a, S> {
-    pub fn new(v: &'a mut AnkiDB, index: usize, s: &'a mut S) -> Self { Self { v, index, was_succesful: None, s } }    
+    pub fn new(v: &'a mut AnkiDB, index: usize, s: &'a mut S) -> Self {
+        Self {
+            v,
+            index,
+            was_succesful: None,
+            s,
+        }
+    }
 }
