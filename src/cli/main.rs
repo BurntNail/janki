@@ -1,4 +1,4 @@
-use janki::{db::AnkiGame, item::Fact, storage::FileStorage};
+use janki::{game::AnkiGame, item::Fact, storage::FileStorage};
 use std::{collections::HashMap, io::stdin, time::Duration};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -34,7 +34,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
 
             "t" => {
-                let mut item = anki.get_card();
+                let mut item = anki.get_card().unwrap(); //not important for cli version
                 let mut answer = String::new();
 
                 println!("What is the definition of {}", item.term);

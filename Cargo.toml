@@ -2,6 +2,12 @@
 name = "janki"
 version = "0.1.0"
 edition = "2021"
+description = "Janky Anki"
+license = "MIT"
+readme = "README.md"
+keywords = ["cli", "learning", "anki"]
+categories = ["cli", "learning"]
+repository = "https://github.com/Epacnoss/janki"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

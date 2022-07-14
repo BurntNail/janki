@@ -1,12 +1,27 @@
-#![warn(clippy::all, clippy::pedantic, clippy::nursery)]
+#![warn(
+    clippy::all,
+    clippy::pedantic,
+    clippy::nursery,
+    clippy::cargo,
+    clippy::missing_docs_in_private_items
+)]
 #![allow(
     clippy::missing_errors_doc,
     clippy::missing_panics_doc,
     clippy::module_name_repetitions
 )]
+//! Welcome to Janki!
+//! Just a really janky version of Anki - the popular spaced repetition learning tool.
 
-pub mod db;
+///A module for the [`either::Either`] enum
+pub mod either;
+///A module to deal with errors and hold [`errors::JankiError`]
 pub mod errors;
+///A module to hold [`game::AnkiGame`]
+pub mod game;
+///A module to hold [`item::Item`], [`item::ItemGuard`] and [`item::Fact`]
 pub mod item;
+///A module to hold the [`storage::Storage`] trait and the [`storage::FileStorage`] struct
 pub mod storage;
+
 pub use serde_json::error::Error as SerdeJsonError;
