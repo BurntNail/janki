@@ -6,7 +6,8 @@ use std::{
 };
 
 ///A Fact - a term and a definition
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Fact {
     ///The term of the fact - this is given to the test taker
     pub term: String,

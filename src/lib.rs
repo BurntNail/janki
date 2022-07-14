@@ -21,7 +21,11 @@ pub mod errors;
 pub mod game;
 ///A module to hold [`item::Item`], [`item::ItemGuard`] and [`item::Fact`]
 pub mod item;
-///A module to hold the [`storage::Storage`] trait and the [`storage::FileStorage`] struct
+///A module to hold the [`storage::Storage`] trait
 pub mod storage;
+
+#[cfg(feature = "file_storage" )]
+///A module to hold the [`file_storage::FileStorage`] struct
+mod file_storage;
 
 pub use serde_json::error::Error as SerdeJsonError;
