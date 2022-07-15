@@ -1,6 +1,6 @@
 [package]
 name = "janki"
-version = "0.2.0" #v0.1 was CLI-only, v0.2 has the GUI
+version = "0.2.1" #v0.1 was CLI-only, v0.2 has the GUI
 edition = "2021"
 description = "Janky Anki"
 license = "MIT"
@@ -8,6 +8,7 @@ readme = "README.md"
 keywords = ["cli", "learning", "anki", "serde"]
 categories = ["command-line-utilities", "gui"]
 repository = "https://github.com/Epacnoss/janki"
+documentation = "https://docs.rs/janki/"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
