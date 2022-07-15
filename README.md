@@ -1,7 +1,13 @@
 ﻿# Janki
 
 ## Binary Use
-Currently CLI-only, so to run go `cargo run --bin janki_cli`
+CLI or GUI using egui - if I need to make traits feel free to add a Issue/PR.
+The CLI is pretty simplistic, and the GUI makes use of more library features (except for `ItemGuard` godammit).
+
+These aren't documented, but shouldn't be *too* tricky to understand. If need be, again open an Issue/PR.
+
+ - CLI: `cargo run --example janki_cli`
+ - GUI: `cargo run --example janki_gui`
 
 Plans for more versions later:
  - TUI
