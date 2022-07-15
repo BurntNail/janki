@@ -6,7 +6,7 @@ description = "Janky Anki"
 license = "MIT"
 readme = "README.md"
 keywords = ["cli", "learning", "anki", "serde"]
-categories = ["cli", "learning"]
+categories = ["command-line-utilities", "gui"]
 repository = "https://github.com/Epacnoss/janki"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
