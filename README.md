@@ -5,7 +5,7 @@ Currently CLI-only, so to run go `cargo run --bin janki_cli`
 
 Plans for more versions later:
  - TUI
- - egui dedicated app
+ - egui WASM support
 
 ## Library Use
 This should be on crates.io, and is decently documented, at least for one of my projects.

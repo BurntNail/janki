@@ -6,7 +6,7 @@ use std::{
 };
 
 ///A Fact - a term and a definition
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Fact {
     ///The term of the fact - this is given to the test taker
@@ -36,14 +36,14 @@ pub struct Item {
     ///
     ///Can be [`Option::None`] if the user has never been tested on this before.
     ///
-    ///Clients should never directly access this, as this is set via an [`ItemGuard`]
-    last_tested: Option<SystemTime>,
+    ///Clients should never directly access this, as this is set via an [`ItemGuard`] or otherwise
+    pub(crate) last_tested: Option<SystemTime>,
     ///The history of the user - each bool signifies whether or not the user answered correctly.
     ///
     ///`history[0]` is the first time that the user was tested on the fact, and as the user is tested again, `history.push` is used.
     ///
-    ///Clients should never directly access this, as this is set via an [`ItemGuard`]
-    history: Vec<bool>,
+    ///Clients should never directly access this, as this is set via an [`ItemGuard`] or otherwise
+    pub(crate) history: Vec<bool>,
 }
 
 impl From<Fact> for Item {

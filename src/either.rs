@@ -23,7 +23,7 @@ impl<A, B> Either<A, B> {
 impl<A> Either<A, A> {
     ///If `A` == `B` then this function will return an `A` - useful for when the [`Either`] side signifies something, but always returns the same type.
     #[allow(clippy::missing_const_for_fn)] //Cannot be const as destructors cannot be const - Github error 8874
-    pub fn unwrap(self) -> A {
+    pub fn to_normal(self) -> A {
         match self {
             Self::Left(a) => a,
             Self::Right(b) => b,

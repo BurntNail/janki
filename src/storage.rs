@@ -1,10 +1,12 @@
-use crate::{game::AnkiDB};
-use std::error::Error;
+use crate::game::AnkiDB;
 
 ///Trait for a place to store the database
 pub trait Storage {
-    ///An associated type for errors that come from the functions. Must implement [`std::error::Error`]
-    type ErrorType: Error;
+    ///An associated type for errors that come from the functions.
+    ///
+    ///Must implement the following:
+    /// - [`std::fmt::Debug`]
+    type ErrorType: std::fmt::Debug;
 
     ///Read the database into memory, and return an [`AnkiDB`] or an Error using [`Self::ErrorType`]
     fn read_db(&self) -> Result<AnkiDB, Self::ErrorType>;

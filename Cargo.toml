@@ -16,13 +16,25 @@ rand = "0.8.5"
 thiserror = "1.0.31"
 serde = {version = "1.0.139", features = ["derive"], optional = true}
 serde_json = {version = "1.0.82", optional = true }
+eframe = {version = "0.18.0", features = ["persistence"], optional = true}
+
 
 [features]
 default = ["serde"]
-file_storage = ["serde_json"]
-serde_json = ["serde", "dep:serde_json"]
-serde = ["dep:serde"]
 
-[[bin]]
+serde = ["dep:serde"]
+serde_json = ["serde", "dep:serde_json"]
+
+file_storage = ["serde_json"]
+eframe_storage = ["serde_json", "dep:eframe"]
+
+
+[[example]]
 path = "src/cli/main.rs"
 name = "janki_cli"
+required-features = ["file_storage"]
+
+[[example]]
+path = "src/egui/main.rs"
+name = "janki_gui"
+required-features = ["eframe_storage"]

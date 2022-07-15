@@ -1,22 +1,19 @@
-use janki::{game::AnkiGame, item::Fact, storage::FileStorage};
-use std::{collections::HashMap, io::stdin, time::Duration};
+use janki::{
+    file_storage::NamedFileStorage,
+    game::{default_sag, AnkiGame},
+    item::Fact,
+};
+use std::io::stdin;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let storage: FileStorage = "./janki_db.json".into();
+    let storage: NamedFileStorage = "./janki_db.json".into();
 
-    let map = {
-        let mut hm = HashMap::new();
-        for i in 1..11 {
-            hm.insert(i, Duration::from_secs(i as u64 * 30));
-        }
-        hm
-    };
+    let map = default_sag();
 
     let mut anki = AnkiGame::new(storage, map)?;
 
     let mut input = String::new();
     loop {
-        //TODO: this but w/ clap
         input.clear();
         println!("Add, Test or Exit - [atE]: ");
         stdin().read_line(&mut input)?;
@@ -34,7 +31,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
 
             "t" => {
-                let mut item = anki.get_card().unwrap(); //not important for cli version
+                let mut item = anki.get_item_guard().unwrap().0; //not important for cli version
                 let mut answer = String::new();
 
                 println!("What is the definition of {}", item.term);
