@@ -15,7 +15,11 @@ pub type SeeAgainGaps = HashMap<u32, Duration>;
 ///Utility alias for a Vec<Item>
 pub type AnkiDB = Vec<Item>;
 
+///muah ha ha ha ha
+///
+///Library users can't see this, so I can do real messed up stuff
 mod private_trait {
+    ///get recked lol
     pub trait CannotExternallyImplement {}
 }
 
@@ -139,12 +143,10 @@ impl<S: Storage> AnkiGame<S, GiveFacts> {
     ///
     ///If no facts, will return [`Option::None`], else will return a [`Fact`] and a [`bool`] for whether or not is was from the eligible list
     pub fn get_fact(&mut self) -> Option<(Fact, bool)> {
-        if self.v.is_empty() {
-            return None;
-        }
-
         if let Some((cu, was_e)) = self.current {
-            return Some((self.v[cu].fact.clone(), was_e));
+            Some((self.v[cu].fact.clone(), was_e))
+        } else if self.v.is_empty() {
+            None
         } else {
             self.set_new_fact();
             self.get_fact()
