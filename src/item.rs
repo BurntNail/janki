@@ -7,7 +7,7 @@ use std::{
 
 ///A Fact - a term and a definition
 #[derive(Debug, Clone, Eq, PartialEq)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde_derive_structs", derive(Serialize, Deserialize))]
 pub struct Fact {
     ///The term of the fact - this is given to the test taker
     pub term: String,
@@ -28,7 +28,8 @@ impl Fact {
 ///An Item - contains a fact, as well as stats about the user's history with that fact.
 ///
 ///Often accessed in the client via an [`ItemGuard`]
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde_derive_structs", derive(Serialize, Deserialize))]
 pub struct Item {
     ///The fact that is the focus of the item
     pub fact: Fact,

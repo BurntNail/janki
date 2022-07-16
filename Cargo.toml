@@ -1,6 +1,6 @@
 [package]
 name = "janki"
-version = "0.2.1" #v0.1 was CLI-only, v0.2 has the GUI
+version = "0.2.2" #v0.1 was CLI-only, v0.2 has the GUI
 edition = "2021"
 description = "Janky Anki"
 license = "MIT"
@@ -21,13 +21,13 @@ eframe = {version = "0.18.0", features = ["persistence"], optional = true}
 
 
 [features]
-default = ["serde"]
+default = ["serde_derive_structs", "file_storage"]
 
-serde = ["dep:serde"]
-serde_json = ["serde", "dep:serde_json"]
+serde_derive_structs = ["dep:serde"]
+serde_json_stuff = ["dep:serde", "dep:serde_json"]
 
-file_storage = ["serde_json"]
-eframe_storage = ["serde_json", "dep:eframe"]
+file_storage = ["serde_json_stuff"]
+eframe_storage = ["dep:eframe", "serde_json_stuff"]
 
 
 [[example]]

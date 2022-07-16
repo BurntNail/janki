@@ -17,8 +17,6 @@
 pub mod dummy_storage;
 ///A module for the [`either::Either`] enum
 pub mod either;
-///A module to deal with errors and hold [`errors::JankiError`]
-pub mod errors;
 ///A module to hold [`game::AnkiGame`]
 pub mod game;
 ///A module to hold [`item::Item`], [`item::ItemGuard`] and [`item::Fact`]
@@ -33,12 +31,12 @@ pub mod eframe_storage;
 ///A module to hold the [`file_storage::NamedFileStorage`] struct
 pub mod file_storage;
 
-#[cfg(feature = "serde")]
+#[cfg(feature = "serde_derive_structs")]
 ///Re-export the [`serde`] crate
 pub mod serde {
     pub use serde::*;
 }
-#[cfg(feature = "serde_json")]
+#[cfg(feature = "serde_json_stuff")]
 ///Re-export the [`serde_json`] crate
 pub mod serde_json {
     pub use serde_json::*;
