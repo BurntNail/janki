@@ -7,7 +7,8 @@ The CLI is pretty simplistic, and the GUI makes use of more library features (ex
 These aren't documented, but shouldn't be *too* tricky to understand. If need be, again open an Issue/PR.
 
  - CLI: `cargo run --example janki_cli`
- - GUI: `cargo run --example janki_gui`
+ - GUI w/ egui: `cargo run --example janki_egui`
+ - GUI w/ druid: `cargo run --example janki_druid`
 
 Plans for more versions later:
  - TUI

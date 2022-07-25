@@ -112,8 +112,7 @@ impl eframe::App for JankiApp {
 
                     if ui.button("Submit!").clicked() {
                         let was_correct = current_text.trim() == current_fact.definition;
-                        self.app.finish_current_fact(was_correct);
-                        self.app.set_new_fact();
+                        self.app.finish_current_fact(Some(was_correct));
 
                         self.state = JankiState::Tested {
                             fact: current_fact.clone(),
@@ -153,7 +152,7 @@ impl eframe::App for JankiApp {
                     show_only_eligible,
                 } => {
                     let mut list = if *show_only_eligible {
-                        self.app.get_elgible()
+                        self.app.get_eligible()
                     } else {
                         self.app.get_all_facts()
                     };
@@ -164,24 +163,26 @@ impl eframe::App for JankiApp {
                     ui.separator();
 
                     egui::ScrollArea::vertical().show(ui, |ui| {
-                        let mut display_fact = |f: Fact, is_first: bool| {
-                            if is_first {
-                                ui.separator();
-                            }
+                        if !list.is_empty() {
+                            let mut display_fact = |f: Fact, is_first: bool| {
+                                if is_first {
+                                    ui.separator();
+                                }
 
-                            ui.label(format!("Term - {}", f.term));
-                            if *show_defs {
-                                ui.label(format!("Definition - {}", f.definition));
-                            } else {
-                                ui.label(format!("Definition Hidden!"));
-                            }
-                        };
+                                ui.label(format!("Term - {}", f.term));
+                                if *show_defs {
+                                    ui.label(format!("Definition - {}", f.definition));
+                                } else {
+                                    ui.label(format!("Definition Hidden!"));
+                                }
+                            };
 
-                        let first = list.remove(0);
-                        display_fact(first, false);
-                        list.into_iter().for_each(|f| {
-                            display_fact(f, true);
-                        });
+                            let first = list.remove(0);
+                            display_fact(first, false);
+                            list.into_iter().for_each(|f| {
+                                display_fact(f, true);
+                            });
+                        }
                     });
                 }
             });
@@ -201,6 +202,7 @@ impl eframe::App for JankiApp {
                     .expect("Failure to write to EGUI storage");
             } else {
                 self.has_done_initial_read = true;
+                trace!("Doing initial read");
                 self.app
                     .read_custom(&storage as &dyn JStorage<ErrorType = serde_json::Error>)
                     .expect("Failure to read from EGUI storage");
@@ -208,7 +210,19 @@ impl eframe::App for JankiApp {
         }
     }
 
+    fn on_exit(&mut self, _gl: &eframe::glow::Context) {
+        self.app.exit();
+
+        if cfg!(feature = "opentel") {
+            opentelemetry::global::shutdown_tracer_provider();
+        }
+    }
+
     fn auto_save_interval(&self) -> Duration {
-        return Duration::from_millis(500);
+        return if !self.has_done_initial_read {
+            Duration::from_millis(20)
+        } else {
+            Duration::from_secs(30) //the normal behaviourr
+        };
     }
 }

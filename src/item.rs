@@ -5,9 +5,13 @@ use std::{
     time::{Duration, SystemTime},
 };
 
+#[cfg(feature = "druid_data")]
+use druid::Data;
+
 ///A Fact - a term and a definition
 #[derive(Debug, Clone, Eq, PartialEq)]
 #[cfg_attr(feature = "serde_derive_structs", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "druid_data", derive(Data))]
 pub struct Fact {
     ///The term of the fact - this is given to the test taker
     pub term: String,

@@ -1,17 +1,21 @@
 use crate::{game::AnkiDB, storage::Storage};
 
 ///A dummy database - works only in memory
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct DummyStorage(AnkiDB);
 
 impl Storage for DummyStorage {
     type ErrorType = ();
 
+    #[instrument]
     fn read_db(&self) -> Result<AnkiDB, Self::ErrorType> {
+        trace!("Reading DummyDB");
         Ok(self.0.clone())
     }
 
+    #[instrument(skip(self, db))]
     fn write_db(&mut self, db: &AnkiDB) -> Result<(), Self::ErrorType> {
+        trace!("Writing to DummyDB");
         self.0 = db.clone();
         Ok(())
     }

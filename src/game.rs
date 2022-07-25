@@ -9,6 +9,7 @@ use std::{
     marker::PhantomData,
     time::{Duration, SystemTime},
 };
+use tracing::Level;
 
 ///Alias used to determine how long the space is between repetitions based on the current streak
 pub type SeeAgainGaps = HashMap<u32, Duration>;
@@ -17,7 +18,7 @@ pub type AnkiDB = Vec<Item>;
 
 ///muah ha ha ha ha
 ///
-///Library users can't see this, so I can do real messed up stuff
+///Library users can't see this, so I can do real messed up stuff with the orphans
 mod private_trait {
     ///get recked lol
     pub trait CannotExternallyImplement {}
@@ -25,9 +26,9 @@ mod private_trait {
 
 ///Trait for clients to decide how they want to get the facts. Shenanigans have occured so that clients **cannot** implement this
 pub trait AnkiCardReturnType: private_trait::CannotExternallyImplement {}
-///Marker Struct that implements [`AnkiCardType`] where the client receives an [`ItemGuard`]
+///Marker Struct that implements [`AnkiCardReturnType`] where the client receives an [`ItemGuard`]
 pub struct GiveItemGuards;
-///Marker Struct that implements [`AnkiCardType`] where the client receives a [`Fact`]
+///Marker Struct that implements [`AnkiCardReturnType`] where the client receives a [`Fact`]
 pub struct GiveFacts;
 impl private_trait::CannotExternallyImplement for GiveItemGuards {}
 impl private_trait::CannotExternallyImplement for GiveFacts {}
@@ -52,10 +53,10 @@ pub struct AnkiGame<S: Storage, T: AnkiCardReturnType> {
     pub(crate) storage: S,
     ///Timer for spaced repetition
     sag: SeeAgainGaps,
-    ///Stores the index of the card being tested if [`AnkiCardType`] == [`GiveMeFacts`]
+    ///Stores the index of the card being tested if [`AnkiCardReturnType`] == [`GiveFacts`]
     current: Option<(usize, bool)>,
 
-    ///Makes sure that the [`AnkiCardType`] isn't optimised away
+    ///Makes sure that the [`AnkiCardReturnType`] isn't optimised away
     _pd: PhantomData<T>,
 }
 
@@ -63,27 +64,39 @@ impl<S: Storage, T: AnkiCardReturnType> AnkiGame<S, T> {
     ///Constructor function - sets all fields to arguments, and uses the [`Storage`] to read the database.
     ///
     ///Can return [`Result::Err`] if there is an error reading the database
-    pub fn new(storage: S, sat: SeeAgainGaps) -> Result<Self, S::ErrorType> {
+    pub fn new(storage: S, sag: SeeAgainGaps) -> Result<Self, S::ErrorType> {
         Ok(Self {
             v: storage.read_db()?,
             storage,
-            sag: sat,
+            sag,
             current: None,
             _pd: PhantomData,
         })
     }
 
+    ///Constructor from parameters
+    pub fn new_params(v: AnkiDB, storage: S, sag: SeeAgainGaps) -> Self {
+        Self {
+            v,
+            storage,
+            sag,
+            current: None,
+            _pd: PhantomData,
+        }
+    }
+
     ///Adds a new item to the [`AnkiDB`] using [`Into::into`] - which sets the streak to 0, and the last tested to [`Option::None`]
     pub fn add_card(&mut self, f: Fact) {
+        trace!("New fact - {f:?}");
         self.v.push(f.into());
         self.storage.write_db(&self.v).unwrap();
     }
 
     ///Gets all the current eligible facts - the ordering is **not** related to anything
     #[must_use]
-    pub fn get_elgible(&self) -> Vec<Fact> {
-        let indicies = get_eligible(&self.v, &self.sag);
-        indicies
+    pub fn get_eligible(&self) -> Vec<Fact> {
+        let indices = get_eligible(&self.v, &self.sag);
+        indices
             .into_iter()
             .map(|index| &self.v[index].fact)
             .cloned()
@@ -136,6 +149,18 @@ impl<S: Storage> AnkiGame<S, GiveItemGuards> {
             None
         }
     }
+
+    ///Sets the current [`AnkiCardReturnType`] to be [`GiveFacts`] over [`GiveItemGuards`]
+    pub fn to_give_facts(self) -> AnkiGame<S, GiveFacts> {
+        AnkiGame::new_params(self.v, self.storage, self.sag)
+    }
+
+    ///Function to clean everything up for exit
+    #[instrument(skip(self))]
+    pub fn exit(&mut self) {
+        trace!("Calling exit");
+        self.storage.exit_application();
+    }
 }
 
 impl<S: Storage> AnkiGame<S, GiveFacts> {
@@ -153,30 +178,56 @@ impl<S: Storage> AnkiGame<S, GiveFacts> {
         }
     }
 
-    ///Combination of [`set_new_fact`] and [`get_fact`] - to ensure that the fact received is new
+    ///Combination of [`Self::set_new_fact`] and [`Self::get_fact`] - to ensure that the fact received is new
     pub fn get_new_fact(&mut self) -> Option<(Fact, bool)> {
         self.set_new_fact();
         self.get_fact()
     }
 
     ///Sets the current fact to a new fact
+    #[instrument(skip(self))]
     pub fn set_new_fact(&mut self) {
         if let Some((index, we)) = self.get_an_index() {
+            event!(Level::INFO, index, we, "Setting new fact");
             self.current = Some((index, we));
+        } else {
+            warn!("Unable to get a new index");
         }
     }
 
     ///Signifies that the client is done with the fact.
-    pub fn finish_current_fact(&mut self, correct: bool) {
+    #[instrument(skip(self))]
+    pub fn finish_current_fact(&mut self, correct: Option<bool>) {
+        trace!("Finishing current fact");
+
         if let Some((cu, _)) = self.current {
-            self.v[cu].history.push(correct);
-            self.v[cu].last_tested = Some(SystemTime::now());
-            self.storage
-                .write_db(&self.v)
-                .expect("unable to write to db");
+            if let Some(correct) = correct {
+                event!(Level::INFO, cu, correct, "Finishing current fact");
+
+                self.v[cu].history.push(correct);
+                self.v[cu].last_tested = Some(SystemTime::now());
+                self.storage
+                    .write_db(&self.v)
+                    .expect("unable to write to db");
+            } else {
+                event!(Level::WARN, cu, "Correct not marked");
+            }
         }
 
         self.current = None;
+    }
+
+    ///Sets the current [`AnkiCardReturnType`] to be [`GiveItemGuards`] over [`GiveFacts`]
+    pub fn to_give_item_guards(self) -> AnkiGame<S, GiveItemGuards> {
+        AnkiGame::new_params(self.v, self.storage, self.sag)
+    }
+
+    ///Function to clean everything up for exit
+    #[instrument(skip(self))]
+    pub fn exit(&mut self) {
+        trace!("Calling exit");
+        self.finish_current_fact(None);
+        self.storage.exit_application();
     }
 }
 

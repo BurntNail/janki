@@ -13,6 +13,9 @@
 //! Welcome to Janki!
 //! Just a really janky version of Anki - the popular spaced repetition learning tool.
 
+#[macro_use]
+extern crate tracing;
+
 ///A module to hold a the [`dummy_storage::DummyStorage`] struct
 pub mod dummy_storage;
 ///A module for the [`either::Either`] enum
