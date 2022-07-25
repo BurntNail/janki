@@ -1,0 +1,56 @@
+name: Build Windows
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-windows:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install latest toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        target: x86_64-pc-windows-msvc
+        toolchain: stable
+        override: true
+
+    - name: Cargo Cache
+      uses: actions/cache@v1
+      with:
+        path: ~/.cargo
+        key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-${{ hashFiles('Cargo.toml') }}
+          ${{ runner.os }}-cargo
+    - name: Cargo Target Cache
+      uses: actions/cache@v1
+      with:
+        path: target
+        key: ${{ runner.os }}-cargo-target-${{ hashFiles('Cargo.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-target-${{ hashFiles('Cargo.toml') }}
+          ${{ runner.os }}-cargo-target
+    - name: Build
+      uses: actions-rs/cargo@v1
+      with:
+        command: build
+        args: --release --all-targets
+      
+    - uses: actions/upload-artifact@v3
+      with:
+        name: CLI_Windows
+        path: target/release/examples/janki_cli.exe
+    - uses: actions/upload-artifact@v3
+      with:
+        name: EGUI_Windows
+        path: target/release/examples/janki_egui.exe

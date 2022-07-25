@@ -3,9 +3,7 @@ use janki::{
     game::{default_sag, AnkiGame},
     item::Fact,
 };
-use std::{fs::File, io::stdin};
-use tracing::Level;
-use tracing_subscriber::FmtSubscriber;
+use std::io::stdin;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let storage: NamedFileStorage = "./janki_db.json".into();
