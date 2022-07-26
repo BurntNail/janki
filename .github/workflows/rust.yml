@@ -10,20 +10,6 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  cargo-clippy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Prep
-        uses: actions/checkout@v2
-        uses: actions/toolchain@v1
-        with:
-          toolchain: stable
-
-      - name: Clippy
-        uses: actions-rs@v1
-        with:
-          command: clippy
-
   build-windows:
     runs-on: windows-latest
 
