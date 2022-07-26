@@ -6,6 +6,7 @@ use janki::{
     storage::Storage as JStorage,
 };
 use std::time::Duration;
+use tracing::Level;
 
 pub enum JankiState {
     Testing {
@@ -142,7 +143,7 @@ impl eframe::App for JankiApp {
 
                     if ui.button("Submit").clicked() {
                         self.app
-                            .add_card(Fact::new(term.to_string(), def.to_string()));
+                            .add_fact(Fact::new(term.to_string(), def.to_string()));
                         term.clear();
                         def.clear();
                     }
@@ -219,10 +220,10 @@ impl eframe::App for JankiApp {
     }
 
     fn auto_save_interval(&self) -> Duration {
-        return if !self.has_done_initial_read {
+        if !self.has_done_initial_read {
             Duration::from_millis(20)
         } else {
             Duration::from_secs(30) //the normal behaviourr
-        };
+        }
     }
 }

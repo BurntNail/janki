@@ -1,6 +1,7 @@
 use crate::{game::AnkiDB, storage::Storage};
 use serde::{Deserialize, Serialize};
 use std::{
+    fmt::Display,
     ops::Deref,
     time::{Duration, SystemTime},
 };
@@ -9,7 +10,7 @@ use std::{
 use druid::Data;
 
 ///A Fact - a term and a definition
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd)]
 #[cfg_attr(feature = "serde_derive_structs", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "druid_data", derive(Data))]
 pub struct Fact {
@@ -26,6 +27,12 @@ impl Fact {
             term: term.into(),
             definition: definition.into(),
         }
+    }
+}
+
+impl Display for Fact {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "Fact: {:?} == {:?}", self.term, self.definition)
     }
 }
 
@@ -54,6 +61,11 @@ pub struct Item {
 impl From<Fact> for Item {
     fn from(f: Fact) -> Self {
         Self::new(f)
+    }
+}
+impl From<Item> for Fact {
+    fn from(i: Item) -> Self {
+        i.fact
     }
 }
 
@@ -154,9 +166,13 @@ impl<'a, S: Storage> Drop for ItemGuard<'a, S> {
     /// - the database is written using [`Storage::write_db`]
     fn drop(&mut self) {
         if let Some(ws) = self.was_succesful {
-            self.v[self.index].history.push(ws);
-            self.v[self.index].last_tested = Some(SystemTime::now());
-            self.s.write_db(self.v).unwrap();
+            if let Some(el) = self.v.get_mut(self.index) {
+                el.history.push(ws);
+                el.last_tested = Some(SystemTime::now());
+                self.s.write_db(self.v).unwrap();
+
+                //TODO: ability to invalidate an IG
+            }
         }
     }
 }

@@ -26,7 +26,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 println!("Add a definition: ");
                 stdin().read_line(&mut def)?;
 
-                anki.add_card(Fact::new(term.trim(), def.trim()));
+                anki.add_fact(Fact::new(term.trim(), def.trim()));
             }
 
             "t" => {

@@ -86,7 +86,7 @@ impl<S: Storage, T: AnkiCardReturnType> AnkiGame<S, T> {
     }
 
     ///Adds a new item to the [`AnkiDB`] using [`Into::into`] - which sets the streak to 0, and the last tested to [`Option::None`]
-    pub fn add_card(&mut self, f: Fact) {
+    pub fn add_fact(&mut self, f: Fact) {
         trace!("New fact - {f:?}");
         self.v.push(f.into());
         self.storage.write_db(&self.v).unwrap();
@@ -109,10 +109,28 @@ impl<S: Storage, T: AnkiCardReturnType> AnkiGame<S, T> {
         get_eligible(&self.v, &self.sag).len()
     }
 
-    ///Gets **all** of the current acts, ordering useless
+    ///Gets **all** of the current facts
     #[must_use]
     pub fn get_all_facts(&self) -> Vec<Fact> {
-        self.v.clone().into_iter().map(|i| i.fact).collect()
+        self.v.clone().into_iter().map(Into::into).collect()
+    }
+
+    ///Deletes a fact at a given index
+    #[instrument(skip(self))]
+    pub fn delete_at_index(&mut self, index: usize) {
+        if self.v.len() > index {
+            self.v.remove(index);
+        }
+    }
+
+    ///Adds a list of facts to the database
+    pub fn add_facts(&mut self, v: Vec<Fact>) {
+        let current_facts = self.get_all_facts();
+        for f in v {
+            if !current_facts.contains(&f) {
+                self.add_fact(f);
+            }
+        }
     }
 
     ///Writes to the database - useful if the function is called externally, like in eframe
@@ -160,6 +178,11 @@ impl<S: Storage> AnkiGame<S, GiveItemGuards> {
     pub fn exit(&mut self) {
         trace!("Calling exit");
         self.storage.exit_application();
+    }
+
+    ///Clears **all** items from the [`AnkiDB`]
+    pub fn clear(&mut self) {
+        self.v.clear();
     }
 }
 
@@ -228,6 +251,12 @@ impl<S: Storage> AnkiGame<S, GiveFacts> {
         trace!("Calling exit");
         self.finish_current_fact(None);
         self.storage.exit_application();
+    }
+
+    ///Clears **all** items from the [`AnkiDB`]
+    pub fn clear(&mut self) {
+        self.finish_current_fact(None);
+        self.v.clear();
     }
 }
 
