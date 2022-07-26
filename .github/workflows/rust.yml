@@ -15,34 +15,34 @@ jobs:
     steps:
       - name: Prep
         uses: actions/checkout@v2
-        uses: actions/toolchain@v1
-        with:
-          toolchain: nightly
+        # uses: actions/toolchain@v1
+        # with:
+        #   toolchain: nightly
 
-      # - name: Fmt
-      #   uses: actions-rs/cargo@v1
-      #   with:
-      #     command: fmt
+      - name: Fmt
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
       
-      # - name: Commit + Push Changes
-      #   uses: EndBug/add-and-commit@v9
-      #   with: 
-      #     author_name: "Github Actions"
-      #     message: "Cargo fmt"
+      - name: Commit + Push Changes
+        uses: EndBug/add-and-commit@v9
+        with: 
+          author_name: "Github Actions"
+          message: "Cargo fmt"
 
   cargo-clippy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest 
     steps:
       - name: Prep
         uses: actions/checkout@v2
-        uses: actions/toolchain@v1
-        with:
-          toolchain: stable
+        # uses: actions/toolchain@v1
+        # with:
+        #   toolchain: stable
 
-      # - name: Clippy
-      #  uses: actions-rs@v1
-      #   with:
-      #     command: clippy
+      - name: Clippy
+       uses: actions-rs@v1
+        with:
+          command: clippy
 
   build-windows:
     runs-on: windows-latest
