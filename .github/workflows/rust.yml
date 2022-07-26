@@ -10,8 +10,34 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build-windows:
+  cargo-fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/toolchain@v1
+        with:
+          toolchain: nightly
+      - uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+      
+      - uses: EndBug/add-and-commit@v9
+        with: 
+          author_name: Github Actions
+          message: "Cargo fmt"
 
+  cargo-clippy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions-rs@v1
+        with:
+          command: clippy
+
+  build-windows:
     runs-on: windows-latest
 
     steps:
@@ -40,6 +66,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-cargo-target-${{ hashFiles('Cargo.toml') }}
           ${{ runner.os }}-cargo-target
+        
     - name: Build
       uses: actions-rs/cargo@v1
       with:
