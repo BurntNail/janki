@@ -1,5 +1,6 @@
 use eframe::{egui, egui::Context, Frame, Storage as EStorage};
 use janki::{
+    csv::{read_in, write_out},
     dummy_storage::{DummyStorage, DynStorage},
     game::{default_sag, AnkiGame, GiveFacts},
     item::Fact,
@@ -25,6 +26,10 @@ pub enum JankiState {
     Viewing {
         show_defs: bool,
         show_only_eligible: bool,
+    },
+    Csv {
+        file_name: String,
+        overwrite_existing: bool,
     },
 }
 
@@ -69,6 +74,11 @@ impl eframe::App for JankiApp {
                         show_defs: false,
                         show_only_eligible: true,
                     }
+                } else if ui.button("CSV Utilities").clicked() {
+                    self.state = JankiState::Csv {
+                        file_name: "./data.csv".into(),
+                        overwrite_existing: false,
+                    };
                 }
 
                 ui.separator();
@@ -184,6 +194,64 @@ impl eframe::App for JankiApp {
                             ui.label("No facts");
                         }
                     });
+                }
+                JankiState::Csv {
+                    file_name,
+                    overwrite_existing,
+                } => {
+                    ui.label("CSV Utilities");
+                    ui.horizontal(|ui| {
+                        ui.label("File Path");
+                        ui.text_edit_singleline(file_name);
+                    });
+                    ui.checkbox(overwrite_existing, "Overwrite existing");
+
+                    ui.separator();
+
+                    if ui.button("Export current facts").clicked() {
+                        event!(
+                            Level::TRACE,
+                            file_name,
+                            overwrite_existing,
+                            "Exporting current facts"
+                        );
+                        let mut facts_to_write = self.app.get_all_facts();
+                        if !*overwrite_existing {
+                            match read_in(file_name) {
+                                Err(e) => {
+                                    error!("Error reading in CSV file: {}", e);
+                                    //TOOD: communicate this to user
+                                }
+                                Ok(csv_conts) => {
+                                    facts_to_write.extend(csv_conts.into_iter());
+                                }
+                            }
+                        }
+
+                        write_out(file_name, facts_to_write)
+                            .unwrap_or_else(|err| error!("Error writing out: {}", err));
+                    }
+
+                    if ui.button("Import new facts").clicked() {
+                        event!(
+                            Level::TRACE,
+                            file_name,
+                            overwrite_existing,
+                            "Importing new facts"
+                        );
+                        match read_in(file_name) {
+                            Err(e) => {
+                                error!("Error reading in CSV file: {}", e);
+                                //TOOD: communicate this to user
+                            }
+                            Ok(csv_conts) => {
+                                if *overwrite_existing {
+                                    self.app.clear();
+                                }
+                                self.app.add_facts(csv_conts);
+                            }
+                        }
+                    }
                 }
             });
         } else {

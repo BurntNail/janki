@@ -34,6 +34,10 @@ pub mod eframe_storage;
 ///A module to hold the [`file_storage::NamedFileStorage`] struct
 pub mod file_storage;
 
+#[cfg(feature = "import_export")]
+///Module to deal with importing and exporting to and from CSV files
+pub mod csv;
+
 #[cfg(feature = "serde_derive_structs")]
 ///Re-export the [`serde`] crate
 pub mod serde {
