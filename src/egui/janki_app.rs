@@ -152,7 +152,7 @@ impl eframe::App for JankiApp {
                     show_defs,
                     show_only_eligible,
                 } => {
-                    let mut list = if *show_only_eligible {
+                    let list = if *show_only_eligible {
                         self.app.get_eligible()
                     } else {
                         self.app.get_all_facts()
@@ -161,28 +161,27 @@ impl eframe::App for JankiApp {
                     ui.label("Viewing Facts!");
 
                     ui.separator();
-                    ui.separator();
 
                     egui::ScrollArea::vertical().show(ui, |ui| {
                         if !list.is_empty() {
-                            let mut display_fact = |f: Fact, is_first: bool| {
-                                if is_first {
-                                    ui.separator();
-                                }
+                            list.into_iter()
+                                .enumerate()
+                                .for_each(|(index, f): (usize, Fact)| {
+                                    ui.horizontal(|ui| {
+                                        ui.label(format!("Term - {}, ", f.term));
+                                        if *show_defs {
+                                            ui.label(format!("Definition - {}", f.definition));
+                                        } else {
+                                            ui.label("Definition Hidden!");
+                                        }
 
-                                ui.label(format!("Term - {}", f.term));
-                                if *show_defs {
-                                    ui.label(format!("Definition - {}", f.definition));
-                                } else {
-                                    ui.label(format!("Definition Hidden!"));
-                                }
-                            };
-
-                            let first = list.remove(0);
-                            display_fact(first, false);
-                            list.into_iter().for_each(|f| {
-                                display_fact(f, true);
-                            });
+                                        if ui.button("Delete fact").clicked() {
+                                            self.app.delete_at_index(index);
+                                        }
+                                    });
+                                });
+                        } else {
+                            ui.label("No facts");
                         }
                     });
                 }
