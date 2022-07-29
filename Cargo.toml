@@ -44,7 +44,7 @@ path = "src/egui/main.rs"
 name = "janki_egui"
 required-features = ["eframe_storage", "opentel", "import_export"]
 
-[[example]]
-path = "src/druid/main.rs"
-name = "janki_druid"
-required-features = ["druid_data"]
+# [[example]]
+# path = "src/druid/main.rs"
+# name = "janki_druid"
+# required-features = ["druid_data"]

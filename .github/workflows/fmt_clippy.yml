@@ -1,0 +1,36 @@
+name: Fmt + Clippy
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  cargo-fmt-clippy-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prep
+        uses: actions/checkout@v2
+        uses: actions/toolchain@v1
+        with:
+          toolchain: nightly
+
+      - name: Fmt
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+      
+      - name: Commit + Push Changes
+        uses: EndBug/add-and-commit@v9
+        with: 
+          author_name: "Github Actions"
+          message: "Cargo fmt"
+
+      - name: Clippy
+       uses: actions-rs@v1
+        with:
+          command: clippy --all-features --all-targets
