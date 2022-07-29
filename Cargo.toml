@@ -1,6 +1,6 @@
 [package]
 name = "janki"
-version = "0.2.2" #v0.1 was CLI-only, v0.2 has the GUI
+version = "0.3.0" #v0.1 was CLI-only, v0.2 has the GUI, v0.3 has csvs
 edition = "2021"
 description = "Janky Anki"
 license = "MIT"
