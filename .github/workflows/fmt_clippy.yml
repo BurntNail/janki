@@ -10,9 +10,8 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  cargo-fmt-clippy-push:
-
-    runs-on: ubuntu-latest
+  fmt-clippy:
+    runs-on: windows-latest
 
     steps:
     - name: Prep
