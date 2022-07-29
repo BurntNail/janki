@@ -10,7 +10,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  flipping-fmt-clippy:
+  how-about-we-just-do-the-clippy-stuff:
     runs-on: ubuntu-latest
 
     # steps:
