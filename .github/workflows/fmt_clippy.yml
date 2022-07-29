@@ -13,16 +13,16 @@ jobs:
   fmt-clippy:
     runs-on: windows-latest
 
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/toolchain@v1
-      with:
-      toolchain: nightly
+    # steps:
+    # - uses: actions/checkout@v2
+    # - uses: actions/toolchain@v1
+    #   with:
+    #   toolchain: nightly
 
-    - name: Fmt
-      uses: actions-rs/cargo@v1
-      with:
-        command: fmt
+    # - name: Fmt
+    #   uses: actions-rs/cargo@v1
+    #   with:
+    #     command: fmt
       
     # - name: Commit + Push Changes
     #   uses: EndBug/add-and-commit@v9
