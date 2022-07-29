@@ -1,4 +1,4 @@
-name: Fmt + Clippy
+name: Fmt and Clippy
 
 on:
   push:
@@ -10,8 +10,8 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  fmt-clippy:
-    runs-on: windows-latest
+  flipping-fmt-clippy:
+    runs-on: ubuntu-latest
 
     # steps:
     # - uses: actions/checkout@v2
