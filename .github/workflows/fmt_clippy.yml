@@ -13,11 +13,11 @@ jobs:
   how-about-we-just-do-the-clippy-stuff:
     runs-on: ubuntu-latest
 
-    # steps:
-    # - uses: actions/checkout@v2
-    # - uses: actions/toolchain@v1
-    #   with:
-    #   toolchain: nightly
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/toolchain@v1
+      with:
+      toolchain: nightly
 
     # - name: Fmt
     #   uses: actions-rs/cargo@v1

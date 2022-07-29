@@ -8,9 +8,9 @@ impl JStorage for &dyn EStorage {
     #[instrument(skip(self))]
     fn read_db(&self) -> Result<AnkiDB, Self::ErrorType> {
         trace!("Reading &dyn EStorage");
-        Ok(from_str(
+        from_str(
             &self.get_string("db").unwrap_or_else(|| "[]".into()),
-        )?)
+        )
     }
 
     #[instrument(skip(self))]
