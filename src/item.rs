@@ -1,17 +1,13 @@
 use crate::{game::AnkiDB, storage::Storage};
-use serde::{Deserialize, Serialize};
-use std::{
-    fmt::Display,
-    ops::Deref,
-};
 use chrono::{DateTime, Duration, Utc};
+use serde::{Deserialize, Serialize};
+use std::{fmt::Display, ops::Deref};
 
 #[cfg(feature = "druid_data")]
 use druid::Data;
 
 ///A Fact - a term and a definition
-#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd)]
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Serialize, Deserialize)]
 #[cfg_attr(feature = "druid_data", derive(Data))]
 pub struct Fact {
     ///The term of the fact - this is given to the test taker
@@ -82,7 +78,11 @@ impl Item {
     ///Constructor for a new [`Item`] where all fields are given as arguments
     #[must_use]
     #[allow(dead_code)]
-    pub(crate) const fn all_parts(fact: Fact, last_tested: DateTime<Utc>, history: Vec<bool>) -> Self {
+    pub(crate) const fn all_parts(
+        fact: Fact,
+        last_tested: DateTime<Utc>,
+        history: Vec<bool>,
+    ) -> Self {
         Self {
             fact,
             last_tested: Some(last_tested),
@@ -131,12 +131,11 @@ impl Item {
     #[must_use]
     #[instrument(skip(self))]
     pub fn time_since_last_test(&self) -> Option<Duration> {
-
         if let Some(st) = self.last_tested {
             let diff = Utc::now() - st;
             let zero = Duration::zero();
 
-            if diff.max(zero) != zero  {
+            if diff.max(zero) != zero {
                 return Some(diff);
             }
             error!("Negative Time... {}", diff);

@@ -1,4 +1,4 @@
-﻿use crate::{game::AnkiDB, storage::Storage as JStorage};
+use crate::{game::AnkiDB, storage::Storage as JStorage};
 use eframe::Storage as EStorage;
 use serde_json::{from_str, to_string};
 
@@ -8,9 +8,7 @@ impl JStorage for &dyn EStorage {
     #[instrument(skip(self))]
     fn read_db(&self) -> Result<AnkiDB, Self::ErrorType> {
         trace!("Reading &dyn EStorage");
-        from_str(
-            &self.get_string("db").unwrap_or_else(|| "[]".into()),
-        )
+        from_str(&self.get_string("db").unwrap_or_else(|| "[]".into()))
     }
 
     #[instrument(skip(self))]

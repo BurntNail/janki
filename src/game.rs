@@ -3,14 +3,10 @@ use crate::{
     item::{Fact, Item, ItemGuard},
     storage::Storage,
 };
+use chrono::{Duration, Utc};
 use rand::{thread_rng, Rng};
-use std::{
-    collections::HashMap,
-    marker::PhantomData,
-};
+use std::{collections::HashMap, marker::PhantomData};
 use tracing::Level;
-use chrono::{Duration};
-use chrono::Utc;
 
 ///Alias used to determine how long the space is between repetitions based on the current streak
 pub type SeeAgainGaps = HashMap<u32, Duration>;
