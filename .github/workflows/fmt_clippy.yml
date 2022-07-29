@@ -24,11 +24,11 @@ jobs:
       with:
         command: fmt
       
-    - name: Commit + Push Changes
-      uses: EndBug/add-and-commit@v9
-      with: 
-        author_name: "Github Actions"
-        message: "Cargo fmt"
+    # - name: Commit + Push Changes
+    #   uses: EndBug/add-and-commit@v9
+    #   with: 
+    #     author_name: "Github Actions"
+    #     message: "Cargo fmt"
 
     - name: Clippy
       uses: actions-rs@v1
