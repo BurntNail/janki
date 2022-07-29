@@ -1,4 +1,12 @@
 ﻿# Janki
+ 
+ ## CI/CD
+ Janki currently has 2 CI files, one for building example executables for windows, and one for checking code:
+ 
+ 
+ - Checking Code: [![Quickstart](https://github.com/Epacnoss/janki/actions/workflows/ci.yml/badge.svg)](https://github.com/Epacnoss/janki/actions/workflows/ci.yml)
+ 
+ - Build: [![Build Windows](https://github.com/Epacnoss/janki/actions/workflows/build.yml/badge.svg)](https://github.com/Epacnoss/janki/actions/workflows/build.yml)
 
 ## Binary Use
 CLI or GUI using egui - if I need to make traits feel free to add a Issue/PR.
@@ -8,7 +16,7 @@ These aren't documented, but shouldn't be *too* tricky to understand. If need be
 
  - CLI: `cargo run --example janki_cli`
  - GUI w/ egui: `cargo run --example janki_egui`
- - GUI w/ druid: `cargo run --example janki_druid`
+ - GUI w/ druid: `cargo run --example janki_druid` (currently not supported as still in development)
 
 Plans for more versions later:
  - TUI
