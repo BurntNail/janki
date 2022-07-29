@@ -14,9 +14,8 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Prep
-      uses: actions/checkout@v2
-      uses: actions/toolchain@v1
+    - uses: actions/checkout@v2
+    - uses: actions/toolchain@v1
       with:
       toolchain: nightly
 
@@ -32,6 +31,6 @@ jobs:
         message: "Cargo fmt"
 
     - name: Clippy
-     uses: actions-rs@v1
+      uses: actions-rs@v1
       with:
         command: clippy --all-features --all-targets
