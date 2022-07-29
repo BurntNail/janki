@@ -16,7 +16,7 @@ These aren't documented, but shouldn't be *too* tricky to understand. If need be
 
  - CLI: `cargo run --example janki_cli`
  - GUI w/ egui: `cargo run --example janki_egui`
- - GUI w/ druid: `cargo run --example janki_druid`
+ - GUI w/ druid: `cargo run --example janki_druid` (currently not supported as still in development)
 
 Plans for more versions later:
  - TUI
