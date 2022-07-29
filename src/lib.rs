@@ -8,7 +8,8 @@
 #![allow(
     clippy::missing_errors_doc,
     clippy::missing_panics_doc,
-    clippy::module_name_repetitions
+    clippy::module_name_repetitions,
+    clippy::multiple_crate_versions
 )]
 //! Welcome to Janki!
 //! Just a really janky version of Anki - the popular spaced repetition learning tool.
