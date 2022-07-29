@@ -3,15 +3,15 @@ use serde::{Deserialize, Serialize};
 use std::{
     fmt::Display,
     ops::Deref,
-    time::{Duration, SystemTime},
 };
+use chrono::{DateTime, Duration, Utc};
 
 #[cfg(feature = "druid_data")]
 use druid::Data;
 
 ///A Fact - a term and a definition
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd)]
-#[cfg_attr(feature = "serde_derive_structs", derive(Serialize, Deserialize))]
+#[derive(Serialize, Deserialize)]
 #[cfg_attr(feature = "druid_data", derive(Data))]
 pub struct Fact {
     ///The term of the fact - this is given to the test taker
@@ -39,8 +39,7 @@ impl Display for Fact {
 ///An Item - contains a fact, as well as stats about the user's history with that fact.
 ///
 ///Often accessed in the client via an [`ItemGuard`]
-#[derive(Debug, Clone)]
-#[cfg_attr(feature = "serde_derive_structs", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Item {
     ///The fact that is the focus of the item
     pub fact: Fact,
@@ -49,7 +48,7 @@ pub struct Item {
     ///Can be [`Option::None`] if the user has never been tested on this before.
     ///
     ///Clients should never directly access this, as this is set via an [`ItemGuard`] or otherwise
-    pub(crate) last_tested: Option<SystemTime>,
+    pub(crate) last_tested: Option<DateTime<Utc>>,
     ///The history of the user - each bool signifies whether or not the user answered correctly.
     ///
     ///`history[0]` is the first time that the user was tested on the fact, and as the user is tested again, `history.push` is used.
@@ -83,7 +82,7 @@ impl Item {
     ///Constructor for a new [`Item`] where all fields are given as arguments
     #[must_use]
     #[allow(dead_code)]
-    pub(crate) const fn all_parts(fact: Fact, last_tested: SystemTime, history: Vec<bool>) -> Self {
+    pub(crate) const fn all_parts(fact: Fact, last_tested: DateTime<Utc>, history: Vec<bool>) -> Self {
         Self {
             fact,
             last_tested: Some(last_tested),
@@ -130,11 +129,17 @@ impl Item {
     ///
     ///Can return a [`None`] if the user was never tested, or was tested in the future due to a [`SystemTime`] error
     #[must_use]
+    #[instrument(skip(self))]
     pub fn time_since_last_test(&self) -> Option<Duration> {
+
         if let Some(st) = self.last_tested {
-            if let Ok(d) = st.elapsed() {
-                return Some(d);
+            let diff = Utc::now() - st;
+            let zero = Duration::zero();
+
+            if diff.max(zero) != zero  {
+                return Some(diff);
             }
+            error!("Negative Time... {}", diff);
         }
 
         None
@@ -168,7 +173,7 @@ impl<'a, S: Storage> Drop for ItemGuard<'a, S> {
         if let Some(ws) = self.was_succesful {
             if let Some(el) = self.v.get_mut(self.index) {
                 el.history.push(ws);
-                el.last_tested = Some(SystemTime::now());
+                el.last_tested = Some(Utc::now());
                 self.s.write_db(self.v).unwrap();
 
                 //TODO: ability to invalidate an IG

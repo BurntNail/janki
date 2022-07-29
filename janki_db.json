@@ -1,1 +1,1 @@
-[{"fact":{"term":"Hello","definition":"World"},"last_tested":{"secs_since_epoch":1657913959,"nanos_since_epoch":975777700},"history":[true,true,true]},{"fact":{"term":"LMO","definition":"42"},"last_tested":{"secs_since_epoch":1658701879,"nanos_since_epoch":900227800},"history":[true,true,false,false,true,false,true,true]},{"fact":{"term":"Goodbye","definition":"Night"},"last_tested":{"secs_since_epoch":1658701916,"nanos_since_epoch":604364500},"history":[false,true,true,true,true,false,false,true]}]
+[]

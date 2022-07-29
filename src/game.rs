@@ -7,9 +7,10 @@ use rand::{thread_rng, Rng};
 use std::{
     collections::HashMap,
     marker::PhantomData,
-    time::{Duration, SystemTime},
 };
 use tracing::Level;
+use chrono::{Duration};
+use chrono::Utc;
 
 ///Alias used to determine how long the space is between repetitions based on the current streak
 pub type SeeAgainGaps = HashMap<u32, Duration>;
@@ -40,7 +41,7 @@ impl AnkiCardReturnType for GiveFacts {}
 pub fn default_sag() -> SeeAgainGaps {
     let mut hm = HashMap::new();
     for i in 1..11 {
-        hm.insert(i, Duration::from_secs(u64::from(i) * 30));
+        hm.insert(i, Duration::seconds(i64::from(i) * 30));
     }
     hm
 }
@@ -228,7 +229,7 @@ impl<S: Storage> AnkiGame<S, GiveFacts> {
                 event!(Level::INFO, cu, correct, "Finishing current fact");
 
                 self.v[cu].history.push(correct);
-                self.v[cu].last_tested = Some(SystemTime::now());
+                self.v[cu].last_tested = Some(Utc::now());
                 self.storage
                     .write_db(&self.v)
                     .expect("unable to write to db");

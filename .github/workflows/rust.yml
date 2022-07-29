@@ -32,6 +32,7 @@ jobs:
 
   cargo-clippy:
     runs-on: ubuntu-latest 
+    
     steps:
       - name: Prep
         uses: actions/checkout@v2

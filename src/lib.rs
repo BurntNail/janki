@@ -30,7 +30,6 @@ pub mod storage;
 #[cfg(feature = "eframe_storage")]
 ///A module to implement [`storage::Storage`] for [`eframe::Storage`]
 pub mod eframe_storage;
-#[cfg(feature = "file_storage")]
 ///A module to hold the [`file_storage::NamedFileStorage`] struct
 pub mod file_storage;
 
@@ -38,12 +37,10 @@ pub mod file_storage;
 ///Module to deal with importing and exporting to and from CSV files
 pub mod csv;
 
-#[cfg(feature = "serde_derive_structs")]
 ///Re-export the [`serde`] crate
 pub mod serde {
     pub use serde::*;
 }
-#[cfg(feature = "serde_json_stuff")]
 ///Re-export the [`serde_json`] crate
 pub mod serde_json {
     pub use serde_json::*;
