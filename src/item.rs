@@ -137,9 +137,8 @@ impl Item {
 
             if diff.max(zero) != zero {
                 return Some(diff);
-            } else {
-                error!("Negative Time... {}", diff);
             }
+            error!("Negative Time... {}", diff);
         }
 
         None
