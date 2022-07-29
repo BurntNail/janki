@@ -54,13 +54,21 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v2
 
-      - name: Install stable toolchain
+      - name: Install stable toolchain for clippy
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: stable
           override: true
-          components: rustfmt, clippy
+          components: clippy
+
+      - name: Install nightly toolchain for rustfmt
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          components: rustfmt
+
 
       - name: Run cargo fmt
         uses: actions-rs/cargo@v1
