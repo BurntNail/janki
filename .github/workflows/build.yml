@@ -44,7 +44,7 @@ jobs:
       uses: actions-rs/cargo@v1
       with:
         command: build
-        args: --release --example janki_egui --features "eframe_storage opentel import_export"
+        args: --release --example janki_egui --features "eframe_storage opentel"
 
     - name: Build CLI
       uses: actions-rs/cargo@v1
