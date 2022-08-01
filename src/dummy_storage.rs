@@ -1,6 +1,6 @@
 use crate::{game::AnkiDB, storage::Storage};
 
-///A dummy database - works only in memory
+///A dummy database - works only in memory, as long as the [`DummyStorage`] hasn't been dropped
 #[derive(Default, Debug)]
 pub struct DummyStorage(AnkiDB);
 
@@ -21,7 +21,7 @@ impl Storage for DummyStorage {
     }
 }
 
-///Trait for [`Storage`] that implements methods that take `dyn` trait objects over owned `self`s.
+///Trait for [`Storage`] that implements methods that take `dyn` trait objects referenced `self`s.
 pub trait DynStorage<E: std::fmt::Debug> {
     ///Reads the database from `S` and sets the owned database from `&mut self` to that read in database.
     fn read_custom(&mut self, s: &dyn Storage<ErrorType = E>) -> Result<(), E>;

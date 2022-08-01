@@ -46,45 +46,55 @@ pub mod serde_json {
     pub use serde_json::*;
 }
 
-///Quick wrapper for [`std::io::Write`] for use with [`String`]
+///Utilities for Testing
 #[cfg(test)]
-mod string_wrapper {
-    use std::{
-        io::{ErrorKind, Write},
-        ops::Deref,
-    };
+pub mod test_utils {
+    use crate::item::Fact;
 
-    #[derive(Default, Debug)]
-    pub struct StringWrapper(String);
+    ///Quick wrapper for [`std::io::Write`] for use with [`String`]
+    pub mod string_wrapper {
+        use std::{
+            io::{ErrorKind, Write},
+            ops::Deref,
+        };
 
-    impl StringWrapper {
-        pub fn to_inner(self) -> String {
-            self.0
+        #[derive(Default, Debug)]
+        pub struct StringWrapper(String);
+
+        impl StringWrapper {
+            pub fn to_inner(self) -> String {
+                self.0
+            }
+        }
+
+        impl Deref for StringWrapper {
+            type Target = str;
+
+            fn deref(&self) -> &Self::Target {
+                &self.0
+            }
+        }
+
+        impl Write for StringWrapper {
+            fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+                let new_string = match String::from_utf8(buf.into()) {
+                    Ok(s) => s,
+                    Err(e) => return Err(std::io::Error::new(ErrorKind::InvalidData, e)),
+                };
+
+                self.0 += &new_string;
+
+                Ok(new_string.len())
+            }
+
+            fn flush(&mut self) -> std::io::Result<()> {
+                Ok(())
+            }
         }
     }
 
-    impl Deref for StringWrapper {
-        type Target = str;
-
-        fn deref(&self) -> &Self::Target {
-            &self.0
-        }
-    }
-
-    impl Write for StringWrapper {
-        fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-            let new_string = match String::from_utf8(buf.into()) {
-                Ok(s) => s,
-                Err(e) => return Err(std::io::Error::new(ErrorKind::InvalidData, e)),
-            };
-
-            self.0 += &new_string;
-
-            Ok(new_string.len())
-        }
-
-        fn flush(&mut self) -> std::io::Result<()> {
-            Ok(())
-        }
+    ///Lazy constructor alias for facts
+    pub fn f(a: impl Into<String>, b: impl Into<String>) -> Fact {
+        Fact::new(a, b)
     }
 }

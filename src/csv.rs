@@ -72,13 +72,8 @@ pub fn write_out(mut writer: impl Write, mut db: Vec<Fact>) -> Result<(), std::i
 mod tests {
     use crate::{
         csv::{read_in_string, write_out, CSVParseError},
-        item::Fact,
-        string_wrapper::StringWrapper,
+        test_utils::{f, string_wrapper::StringWrapper},
     };
-
-    fn f(a: impl Into<String>, b: impl Into<String>) -> Fact {
-        Fact::new(a.into(), b.into())
-    }
 
     #[test]
     pub fn test_read_in() {

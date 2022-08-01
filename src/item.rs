@@ -131,11 +131,11 @@ impl Item {
     #[must_use]
     #[instrument(skip(self))]
     pub fn time_since_last_test(&self) -> Option<Duration> {
-        if let Some(st) = self.last_tested {
-            let diff = Utc::now() - st;
+        if let Some(last_tested) = self.last_tested {
+            let diff = Utc::now() - last_tested;
             let zero = Duration::zero();
 
-            if diff.max(zero) != zero {
+            if diff > zero {
                 return Some(diff);
             }
             error!("Negative Time... {}", diff);
@@ -148,7 +148,7 @@ impl Item {
 ///Guard for [`Item`] for Client use.
 ///
 ///On [`Drop::drop`], the [`crate::game::AnkiGame`] is updated, and as of such only one [`ItemGuard`] can exist per [`crate::game::AnkiGame`]
-#[derive(Debug)] //TODO: refactor for concurrency
+#[derive(Debug)]
 pub struct ItemGuard<'a, S: Storage> {
     ///A mutable reference to the [`AnkiDB`] from the [`crate::game::AnkiGame`]
     v: &'a mut AnkiDB,
@@ -156,6 +156,8 @@ pub struct ItemGuard<'a, S: Storage> {
     index: usize,
     ///A mutable reference to the [`Storage`] for the [`crate::game::AnkiGame`]
     s: &'a mut S,
+    ///A mutable reference to a bool to set to false on [`std::drop::Drop`] to allow the [`AnkiGame`] to get a new [`ItemGuard`]
+    present: &'a mut bool,
 
     ///Whether or not the user was correct.
     ///
@@ -174,6 +176,7 @@ impl<'a, S: Storage> Drop for ItemGuard<'a, S> {
                 el.history.push(ws);
                 el.last_tested = Some(Utc::now());
                 self.s.write_db(self.v).unwrap();
+                *self.present = false;
 
                 //TODO: ability to invalidate an IG
             }
@@ -191,12 +194,56 @@ impl<'a, S: Storage> Deref for ItemGuard<'a, S> {
 
 impl<'a, S: Storage> ItemGuard<'a, S> {
     ///Constructor for a new [`ItemGuard`] - should only be called by an [`crate::game::AnkiGame`]
-    pub(crate) fn new(v: &'a mut AnkiDB, index: usize, s: &'a mut S) -> Self {
+    pub(crate) fn new(
+        v: &'a mut AnkiDB,
+        index: usize,
+        s: &'a mut S,
+        present: &'a mut bool,
+    ) -> Self {
         Self {
             v,
             index,
             was_succesful: None,
             s,
+            present,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{dummy_storage::DummyStorage, game::AnkiGame, item::Item, test_utils::f};
+    use chrono::{Duration, Utc};
+
+    #[test]
+    fn get_true_streak_test() {
+        let mut f = Item::new(f("", ""));
+
+        assert!(f.history.is_empty());
+        assert_eq!(f.get_streak(), 0);
+        assert_eq!(f.true_streak(), 0);
+
+        f.history = vec![
+            true, true, false, true, true, false, false, true, false, true, true, true, false,
+        ];
+        assert_eq!(f.true_streak(), 0);
+        f.history = vec![
+            true, true, false, true, true, false, false, true, false, true, true, true, false,
+            true, true, true,
+        ];
+        assert_eq!(f.true_streak(), 3);
+    }
+
+    #[test]
+    fn item_timing_test() {
+        let mut f = Item::new(f("", ""));
+        assert_eq!(f.time_since_last_test(), None);
+
+        f.last_tested = Some(Utc::now());
+        assert!(f.time_since_last_test().unwrap() < Duration::milliseconds(10));
+        //should be long enough...
+
+        f.last_tested = f.last_tested.map(|t| t + Duration::days(10));
+        assert!(f.time_since_last_test().is_none());
     }
 }
