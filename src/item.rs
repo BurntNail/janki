@@ -212,7 +212,7 @@ impl<'a, S: Storage> ItemGuard<'a, S> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{dummy_storage::DummyStorage, game::AnkiGame, item::Item, test_utils::f};
+    use crate::{item::Item, test_utils::f};
     use chrono::{Duration, Utc};
 
     #[test]

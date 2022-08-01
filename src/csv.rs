@@ -1,14 +1,20 @@
 use crate::item::Fact;
-use std::io::{Read, Write};
+use std::{
+    cmp::Ordering,
+    io::{Read, Write},
+};
 use thiserror::Error as TError;
 
 ///Custom Error type for parsing CSVs using `thiserror`
 #[derive(TError, Debug)]
 pub enum CSVParseError {
+    ///Error for when there aren't enough columns to fill a row, on input like `","` or `"a,"` or `",b"`
     #[error("Not enough columns per row to fill a fact - on input {0:?}")]
     NotEnoughCols(String),
+    ///Error for when there are too many columns to fill a row, on input like `"a,b,c"`
     #[error("Too many columns - ambiguous how to fill a fact - on input {0:?}")]
     TooManyCols(String),
+    ///A wrapper over [`std::io::Error`] for errors reading files.
     #[error("Error reading in file: {0}")]
     ReadError(#[from] std::io::Error),
 }
@@ -20,10 +26,10 @@ pub enum CSVParseError {
 pub fn read_in(mut reader: impl Read) -> Result<Vec<Fact>, CSVParseError> {
     info!("Reading in");
 
-    let mut contents = Default::default();
+    let mut contents = String::default();
     reader.read_to_string(&mut contents)?;
 
-    Ok(read_in_string(contents)?)
+    read_in_string(contents)
 }
 
 #[instrument]
@@ -33,17 +39,18 @@ fn read_in_string(contents: String) -> Result<Vec<Fact>, CSVParseError> {
     let mut v = vec![];
 
     for line in contents.trim().lines() {
-        let mut els: Vec<String> = line.split(",").map(ToString::to_string).collect();
-        if els.len() < 2 {
-            return Err(CSVParseError::NotEnoughCols(line.to_string()));
-        } else if els.len() > 2 {
-            return Err(CSVParseError::TooManyCols(line.to_string()));
-        }
+        let mut els: Vec<String> = line.split(',').map(ToString::to_string).collect();
 
-        v.push(Fact::new(
-            els.remove(0).trim().to_string(),
-            els.remove(0).trim().to_string(),
-        ))
+        match els.len().cmp(&2) {
+            Ordering::Less => return Err(CSVParseError::NotEnoughCols(line.to_string())),
+            Ordering::Greater => return Err(CSVParseError::TooManyCols(line.to_string())),
+            Ordering::Equal => {
+                v.push(Fact::new(
+                    els.remove(0).trim().to_string(),
+                    els.remove(0).trim().to_string(),
+                ));
+            }
+        }
     }
 
     info!("Read in {} facts", v.len());
