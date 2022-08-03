@@ -20,27 +20,51 @@ fn main() {
 }
 
 fn app(cx: Scope) -> Element {
-    let game = use_state(&cx, || {
-        AnkiGame::<_, GiveItemGuards>::new(NamedFileStorage::from("./janki_db.json"), default_sag())
-            .unwrap_or_else(|err| {
-                error!("Error init-ing AG: {err}");
-                std::process::exit(1);
-            })
+    let game = use_ref(&cx, || {
+        AnkiG::new(NamedFileStorage::from("./janki_db.json"), default_sag()).unwrap_or_else(|err| {
+            error!("Error init-ing AG: {err}");
+            std::process::exit(1);
+        })
     });
 
-    let sidebar = rsx!(
-        ul {
-            style: "list-style-type: none",
-            li {
-                button {onclick: move |_| info!("A"), "A"}
-            }
-            li {
-                button {onclick: move |_| info!("B"), "B"}
-            }
-            li {
-                button {onclick: move |_| info!("C"), "C"}
-            }
+    let big_s = "display: block; background-color: #444; color: white; text-align: center; padding: 14px 16px; text-decoration: none";
 
+    let sidebar = rsx!(
+        div {
+            style: "width: 100vh; height: 100vw; background-color: #444",
+            ul {
+                style: "list-style-type: none; margin: 0; padding: 0; overflow: hidden; background-color: #333",
+                li {
+                    style: "float: left",
+                    button {
+                        style: format_args!("{big_s}"),
+                        onclick: move |_| {
+                            info!("Test");
+                        },
+                        "Test"
+                    }
+                }
+                li {
+                    style: "float: left",
+                    button {
+                        style: format_args!("{big_s}"),
+                        onclick: move |_| {
+                            info!("Add More");
+                        },
+                        "Add More"
+                    }
+                }
+                li {
+                    style: "float: left",
+                    button {
+                        style: format_args!("{big_s}"),
+                        onclick: move |_| {
+                            info!("View");
+                        },
+                        "View"
+                    }
+                }
+            }
         }
     );
 
