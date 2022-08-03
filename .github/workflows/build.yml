@@ -1,6 +1,9 @@
 name: Build Windows
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
 
 env:
   CARGO_TERM_COLOR: always
@@ -41,6 +44,12 @@ jobs:
       with:
         command: build
         args: --release --example janki_egui --features "eframe_storage opentel"
+        
+    - name: Build Dioxus
+      uses: actions-rs/cargo@v1
+      with:
+        command: build
+        args: --release --example janki_dioxus
 
     - name: Build CLI
       uses: actions-rs/cargo@v1
@@ -56,3 +65,7 @@ jobs:
       with:
         name: EGUI_Windows
         path: target/release/examples/janki_egui.exe
+    - uses: actions/upload-artifact@v3
+      with:
+        name: DIOXUS_Windows
+        path: target/release/examples/janki_dioxus.exe

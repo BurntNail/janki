@@ -16,11 +16,11 @@ These aren't documented, but shouldn't be *too* tricky to understand. If need be
 
  - CLI: `cargo run --example janki_cli`
  - GUI w/ egui: `cargo run --example janki_egui`
- - GUI w/ druid: `cargo run --example janki_druid` (currently not supported as still in development)
+ - GUI w/ dioxus: `cargo run --example janki_dioxus` (currently not supported as still in development)
 
 Plans for more versions later:
  - TUI
- - egui WASM support
+ - EVEN MORE UI LIBRARIES
 
 ## Library Use
 This should be on crates.io, and is decently documented, at least for one of my projects.

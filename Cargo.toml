@@ -25,6 +25,7 @@ chrono = {version = "0.4.19", features = ["serde"]}
 
 [dev-dependencies]
 tracing-subscriber = "0.3.15"
+dioxus = {version = "0.2.4", features = ["desktop"]}
 
 
 [features]
@@ -42,7 +43,6 @@ path = "src/egui/main.rs"
 name = "janki_egui"
 required-features = ["eframe_storage", "opentel"]
 
-# [[example]]
-# path = "src/druid/main.rs"
-# name = "janki_druid"
-# required-features = ["druid_data"]
+ [[example]]
+ path = "src/dioxus/main.rs"
+ name = "janki_dioxus"
