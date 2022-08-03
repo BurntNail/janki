@@ -41,8 +41,3 @@ name = "janki_cli"
 path = "src/egui/main.rs"
 name = "janki_egui"
 required-features = ["eframe_storage", "opentel"]
-
-# [[example]]
-# path = "src/druid/main.rs"
-# name = "janki_druid"
-# required-features = ["druid_data"]
