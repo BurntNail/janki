@@ -21,7 +21,6 @@ eframe = {version = "0.18.0", features = ["persistence"], optional = true}
 druid = {version = "0.7.0", optional = true}
 tracing = "0.1.35"
 opentelemetry = {version = "0.17.0", optional = true}
-csv = {version = "1.1.6", optional = true}
 chrono = {version = "0.4.19", features = ["serde"]}
 
 [dev-dependencies]
@@ -32,7 +31,6 @@ tracing-subscriber = "0.3.15"
 eframe_storage = ["dep:eframe"]
 druid_data = ["dep:druid"]
 opentel = ["dep:opentelemetry"]
-import_export = ["dep:csv"]
 
 
 [[example]]
@@ -42,7 +40,7 @@ name = "janki_cli"
 [[example]]
 path = "src/egui/main.rs"
 name = "janki_egui"
-required-features = ["eframe_storage", "opentel", "import_export"]
+required-features = ["eframe_storage", "opentel"]
 
 # [[example]]
 # path = "src/druid/main.rs"

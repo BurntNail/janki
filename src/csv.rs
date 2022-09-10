@@ -8,19 +8,20 @@ use std::{error::Error, fs::File, io::Write};
 pub fn read_in(path: &str) -> Result<Vec<Fact>, Box<dyn Error>> {
     info!("Reading in");
 
-    let mut rdr = csv::Reader::from_path(path)?;
-    let records: Result<Vec<_>, _> = rdr.records().into_iter().collect();
+    let contents = std::fs::read_to_string(path)?;
+    read_in_string(contents)
+}
+
+#[instrument]
+fn read_in_string (contents: String) -> Result<Vec<Fact>, Box<dyn Error>> {
+    info!("Internal reading in");
+
+    let records = contents.split("\n"); //TOOD: actual parsing
+    
     Ok(records?
         .into_iter()
-        .filter_map(|record| {
-            record
-                .get(0)
-                .and_then(|term| {
-                    record
-                        .get(1)
-                        .map(|def| Some(Fact::new(term.to_string(), def.to_string())))
-                })
-                .flatten()
+        .map(|(term, definition)| {
+            Some(Fact::new(term.to_string(), def.to_string()))
         })
         .collect())
 }
@@ -42,4 +43,11 @@ pub fn write_out(path: &str, mut db: Vec<Fact>) -> Result<(), std::io::Error> {
     write!(file, "{tbw}")?;
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    pub fn test_read_in () {
+        let 
+    }
 }
