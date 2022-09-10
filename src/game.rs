@@ -52,6 +52,8 @@ pub struct AnkiGame<S: Storage, T: AnkiCardReturnType> {
     sag: SeeAgainGaps,
     ///Stores the index of the card being tested if [`AnkiCardReturnType`] == [`GiveFacts`]
     current: Option<(usize, bool)>,
+    ///Stores whether or not an [`ItemGuard`] is present if [`AnkiCardReturnType`] == [`GiveItemGuards`]
+    ig_present: bool,
 
     ///Makes sure that the [`AnkiCardReturnType`] isn't optimised away
     _pd: PhantomData<T>,
@@ -67,6 +69,7 @@ impl<S: Storage, T: AnkiCardReturnType> AnkiGame<S, T> {
             storage,
             sag,
             current: None,
+            ig_present: false,
             _pd: PhantomData,
         })
     }
@@ -78,6 +81,7 @@ impl<S: Storage, T: AnkiCardReturnType> AnkiGame<S, T> {
             storage,
             sag,
             current: None,
+            ig_present: false,
             _pd: PhantomData,
         }
     }
@@ -158,8 +162,16 @@ impl<S: Storage> AnkiGame<S, GiveItemGuards> {
     ///
     ///Returns an [`ItemGuard`] and a [`bool`] for whether the item was taken from the eligible list
     pub fn get_item_guard(&mut self) -> Option<(ItemGuard<S>, bool)> {
+        if self.ig_present {
+            return None;
+        }
+
         if let Some((index, was_e)) = self.get_an_index() {
-            Some((ItemGuard::new(&mut self.v, index, &mut self.storage), was_e))
+            self.ig_present = true;
+            Some((
+                ItemGuard::new(&mut self.v, index, &mut self.storage, &mut self.ig_present),
+                was_e,
+            ))
         } else {
             None
         }

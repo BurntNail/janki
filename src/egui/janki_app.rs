@@ -6,7 +6,7 @@ use janki::{
     item::Fact,
     storage::Storage as JStorage,
 };
-use std::time::Duration;
+use std::{fs::File, time::Duration};
 use tracing::Level;
 
 pub enum JankiState {
@@ -99,156 +99,168 @@ impl eframe::App for JankiApp {
                 ));
             });
 
-            egui::CentralPanel::default().show(ctx, |ui| match &mut self.state {
-                JankiState::Testing {
-                    current_fact,
-                    current_text,
-                    was_eligible,
-                } => {
-                    if *was_eligible {
-                        ui.label("Testing");
-                    } else {
-                        ui.label("EVEN MORE TESTING!");
-                    }
-                    ui.separator();
-
-                    ui.label(format!("The term is: {}", current_fact.term));
-
-                    ui.horizontal(|ui| {
-                        ui.label("Please enter the definition: ");
-                        ui.text_edit_singleline(current_text);
-                    });
-
-                    ui.separator();
-
-                    if ui.button("Submit!").clicked() {
-                        let was_correct = current_text.trim() == current_fact.definition;
-                        self.app.finish_current_fact(Some(was_correct));
-
-                        self.state = JankiState::Tested {
-                            fact: current_fact.clone(),
-                            was_correct,
-                        };
-                    }
-                }
-                JankiState::Tested { fact, was_correct } => {
-                    if *was_correct {
-                        ui.label("Correct!");
-                    } else {
-                        ui.label(format!("Wrong - it should've been {:?}", fact.definition));
-                    }
-                }
-                JankiState::AddingNew { term, def } => {
-                    ui.label("Add New Stuff");
-                    ui.separator();
-
-                    ui.horizontal(|ui| {
-                        ui.label("Enter a term: ");
-                        ui.text_edit_singleline(term);
-                    });
-                    ui.horizontal(|ui| {
-                        ui.label("Enter a definition: ");
-                        ui.text_edit_singleline(def);
-                    });
-
-                    if ui.button("Submit").clicked() {
-                        self.app
-                            .add_fact(Fact::new(term.to_string(), def.to_string()));
-                        term.clear();
-                        def.clear();
-                    }
-                }
-                JankiState::Viewing {
-                    show_defs,
-                    show_only_eligible,
-                } => {
-                    let list = if *show_only_eligible {
-                        self.app.get_eligible()
-                    } else {
-                        self.app.get_all_facts()
-                    };
-
-                    ui.label("Viewing Facts!");
-
-                    ui.separator();
-
-                    egui::ScrollArea::vertical().show(ui, |ui| {
-                        if !list.is_empty() {
-                            list.into_iter()
-                                .enumerate()
-                                .for_each(|(index, f): (usize, Fact)| {
-                                    ui.horizontal(|ui| {
-                                        ui.label(format!("Term - {}, ", f.term));
-                                        if *show_defs {
-                                            ui.label(format!("Definition - {}", f.definition));
-                                        } else {
-                                            ui.label("Definition Hidden!");
-                                        }
-
-                                        if ui.button("Delete fact").clicked() {
-                                            self.app.delete_at_index(index);
-                                        }
-                                    });
-                                });
+            egui::CentralPanel::default().show(ctx, |ui| {
+                match &mut self.state {
+                    JankiState::Testing {
+                        current_fact,
+                        current_text,
+                        was_eligible,
+                    } => {
+                        if *was_eligible {
+                            ui.label("Testing");
                         } else {
-                            ui.label("No facts");
+                            ui.label("EVEN MORE TESTING!");
                         }
-                    });
-                }
-                JankiState::Csv {
-                    file_name,
-                    overwrite_existing,
-                } => {
-                    ui.label("CSV Utilities");
-                    ui.horizontal(|ui| {
-                        ui.label("File Path");
-                        ui.text_edit_singleline(file_name);
-                    });
-                    ui.checkbox(overwrite_existing, "Overwrite existing");
+                        ui.separator();
 
-                    ui.separator();
+                        ui.label(format!("The term is: {}", current_fact.term));
 
-                    if ui.button("Export current facts").clicked() {
-                        event!(
-                            Level::TRACE,
-                            file_name,
-                            overwrite_existing,
-                            "Exporting current facts"
-                        );
-                        let mut facts_to_write = self.app.get_all_facts();
-                        if !*overwrite_existing {
-                            match read_in(file_name) {
-                                Err(e) => {
-                                    error!("Error reading in CSV file: {}", e);
-                                    //TOOD: communicate this to user
-                                }
-                                Ok(csv_conts) => {
-                                    facts_to_write.extend(csv_conts.into_iter());
-                                }
-                            }
+                        ui.horizontal(|ui| {
+                            ui.label("Please enter the definition: ");
+                            ui.text_edit_singleline(current_text);
+                        });
+
+                        ui.separator();
+
+                        if ui.button("Submit!").clicked() {
+                            let was_correct = current_text.trim() == current_fact.definition;
+                            self.app.finish_current_fact(Some(was_correct));
+
+                            self.state = JankiState::Tested {
+                                fact: current_fact.clone(),
+                                was_correct,
+                            };
                         }
-
-                        write_out(file_name, facts_to_write)
-                            .unwrap_or_else(|err| error!("Error writing out: {}", err));
                     }
+                    JankiState::Tested { fact, was_correct } => {
+                        if *was_correct {
+                            ui.label("Correct!");
+                        } else {
+                            ui.label(format!("Wrong - it should've been {:?}", fact.definition));
+                        }
+                    }
+                    JankiState::AddingNew { term, def } => {
+                        ui.label("Add New Stuff");
+                        ui.separator();
 
-                    if ui.button("Import new facts").clicked() {
-                        event!(
-                            Level::TRACE,
-                            file_name,
-                            overwrite_existing,
-                            "Importing new facts"
-                        );
-                        match read_in(file_name) {
-                            Err(e) => {
-                                error!("Error reading in CSV file: {}", e);
-                                //TOOD: communicate this to user
+                        ui.horizontal(|ui| {
+                            ui.label("Enter a term: ");
+                            ui.text_edit_singleline(term);
+                        });
+                        ui.horizontal(|ui| {
+                            ui.label("Enter a definition: ");
+                            ui.text_edit_singleline(def);
+                        });
+
+                        if ui.button("Submit").clicked() {
+                            self.app
+                                .add_fact(Fact::new(term.to_string(), def.to_string()));
+                            term.clear();
+                            def.clear();
+                        }
+                    }
+                    JankiState::Viewing {
+                        show_defs,
+                        show_only_eligible,
+                    } => {
+                        let list = if *show_only_eligible {
+                            self.app.get_eligible()
+                        } else {
+                            self.app.get_all_facts()
+                        };
+
+                        ui.label("Viewing Facts!");
+
+                        ui.separator();
+
+                        egui::ScrollArea::vertical().show(ui, |ui| {
+                            if !list.is_empty() {
+                                list.into_iter().enumerate().for_each(
+                                    |(index, f): (usize, Fact)| {
+                                        ui.horizontal(|ui| {
+                                            ui.label(format!("Term - {}, ", f.term));
+                                            if *show_defs {
+                                                ui.label(format!("Definition - {}", f.definition));
+                                            } else {
+                                                ui.label("Definition Hidden!");
+                                            }
+
+                                            if ui.button("Delete fact").clicked() {
+                                                self.app.delete_at_index(index);
+                                            }
+                                        });
+                                    },
+                                );
+                            } else {
+                                ui.label("No facts");
                             }
-                            Ok(csv_conts) => {
-                                if *overwrite_existing {
-                                    self.app.clear();
+                        });
+                    }
+                    JankiState::Csv {
+                        file_name,
+                        overwrite_existing,
+                    } => {
+                        ui.label("CSV Utilities");
+                        ui.horizontal(|ui| {
+                            ui.label("File Path");
+                            ui.text_edit_singleline(file_name);
+                        });
+                        ui.checkbox(overwrite_existing, "Overwrite existing");
+
+                        ui.separator();
+
+                        if ui.button("Export current facts").clicked() {
+                            event!(
+                                Level::TRACE,
+                                file_name,
+                                overwrite_existing,
+                                "Exporting current facts"
+                            );
+                            let mut facts_to_write = self.app.get_all_facts();
+                            if !*overwrite_existing {
+                                match File::open(&file_name) {
+                                    Ok(file) => match read_in(file) {
+                                        Err(e) => {
+                                            error!("Error parsing CSV file: {e:?}");
+                                            //TOOD: communicate this to user
+                                        }
+                                        Ok(csv_conts) => {
+                                            facts_to_write.extend(csv_conts.into_iter());
+                                        }
+                                    },
+                                    Err(e) => error!("Error reading csv file: {e}"),
                                 }
-                                self.app.add_facts(csv_conts);
+                            }
+
+                            match File::create(&file_name) {
+                                Ok(file) => {
+                                    facts_to_write.sort();
+                                    write_out(file, facts_to_write)
+                                        .unwrap_or_else(|err| error!("Error writing out: {err}"))
+                                }
+                                Err(e) => error!("Error creating file: {e}"),
+                            }
+                        }
+
+                        if ui.button("Import new facts").clicked() {
+                            {
+                                let f = file_name.clone();
+                                event!(Level::TRACE, f, overwrite_existing, "Importing new facts");
+                            }
+                            match File::open(file_name.clone()) {
+                                Ok(file) => match read_in(file) {
+                                    Err(e) => {
+                                        error!("Error reading in CSV file: {e:?}");
+                                        //TOOD: communicate this to user
+                                    }
+                                    Ok(csv_conts) => {
+                                        if *overwrite_existing {
+                                            self.app.clear();
+                                        }
+                                        self.app.add_facts(csv_conts);
+                                    }
+                                },
+                                Err(e) => error!("Error reading in CSV file: {e}"),
                             }
                         }
                     }

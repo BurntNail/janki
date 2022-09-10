@@ -1,4 +1,4 @@
-use std::fmt::{Debug, Formatter};
+use std::fmt::{Debug, Display, Formatter};
 
 ///Enum which can represent one of two values
 ///
@@ -41,6 +41,15 @@ impl<L: Debug, R: Debug> Debug for Either<L, R> {
             Self::Right(r) => debug.field("Right", r),
         }
         .finish()
+    }
+}
+impl<L: Display, R: Display> Display for Either<L, R> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Either on ")?;
+        match self {
+            Either::Left(l) => write!(f, "Left: {l}"),
+            Either::Right(r) => write!(f, "Right: {r}"),
+        }
     }
 }
 
